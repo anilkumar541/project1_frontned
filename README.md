@@ -1,16 +1,91 @@
-# React + Vite
+# project1 — React Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Auth UI built with Vite, React, and Tailwind CSS v4. Connects to the [FastAPI backend](https://github.com/anilkumar541/project1_fastapi_backend).
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Vite 7** — build tool & dev server
+- **React 19** — UI library
+- **Tailwind CSS v4** — utility-first styling
+- **React Router v7** — client-side routing
+- **Axios** — HTTP client with request interceptors
 
-## React Compiler
+## Pages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Route | Description |
+|-------|-------------|
+| `/login` | Sign in with email & password |
+| `/register` | Create a new account |
+| `/forgot-password` | Request a password reset email |
+| `/reset-password?token=` | Set a new password via reset token |
+| `/profile` | View account info, change password *(protected)* |
 
-## Expanding the ESLint configuration
+Unauthenticated users are redirected to `/login` when accessing protected routes.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Setup
+
+### 1. Prerequisites
+
+- Node.js 18+
+- FastAPI backend running at `http://127.0.0.1:8000`
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the dev server
+
+```bash
+npm run dev
+```
+
+App runs at `http://localhost:5173`. API requests to `/auth/*` and `/users/*` are proxied to the backend automatically — no CORS issues in development.
+
+### 4. Build for production
+
+```bash
+npm run build
+```
+
+Output is in `dist/`. Point your web server at that directory and ensure `/auth` and `/users` proxy to the backend.
+
+## Project Structure
+
+```
+frontend/
+├── index.html
+├── vite.config.js         # Tailwind plugin + dev proxy
+└── src/
+    ├── main.jsx            # Entry point, wraps app in <AuthProvider>
+    ├── App.jsx             # React Router routes
+    ├── index.css           # @import "tailwindcss"
+    ├── api/
+    │   └── auth.js         # Axios instance + all API call functions
+    ├── context/
+    │   └── AuthContext.jsx # Token/user state, login & logout helpers
+    ├── components/
+    │   ├── Navbar.jsx      # Top nav with logout button
+    │   └── PrivateRoute.jsx # Redirects to /login if not authenticated
+    └── pages/
+        ├── Login.jsx
+        ├── Register.jsx
+        ├── ForgotPassword.jsx
+        ├── ResetPassword.jsx
+        └── Profile.jsx
+```
+
+## Environment
+
+No `.env` file is needed for development. The Vite proxy handles routing API calls to the backend:
+
+```js
+// vite.config.js
+proxy: {
+  '/auth': 'http://127.0.0.1:8000',
+  '/users': 'http://127.0.0.1:8000',
+}
+```
+
+For production, update these proxy targets or configure your reverse proxy (nginx, etc.) accordingly.
